@@ -127,7 +127,7 @@ export default function UbeLatteSequence() {
 
     // Handle high-DPI displays safely
     const resizeCanvas = () => {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
@@ -145,7 +145,7 @@ export default function UbeLatteSequence() {
       const img = imagesRef.current[frameIndex] || imagesRef.current[ImagesFallbackIndex(frameIndex)];
       if (!img) return;
 
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const cW = canvas.width;
       const cH = canvas.height;
 
@@ -166,7 +166,7 @@ export default function UbeLatteSequence() {
 
       // Disable image smoothing for sharper look or keep it depending on aesthetic
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      ctx.imageSmoothingQuality = 'medium';
 
       ctx.drawImage(img, dx, dy, scaledW, scaledH);
     };
@@ -203,7 +203,7 @@ export default function UbeLatteSequence() {
         
         {/* Loader UI */}
         {!isReady && (
-          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-midnight/95 backdrop-blur-md">
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-midnight/95">
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}

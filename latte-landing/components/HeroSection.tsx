@@ -1,40 +1,19 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Canvas } from '@react-three/fiber';
-import { Float, Environment, Sphere } from '@react-three/drei';
-
-function FloatingSphere() {
-  return (
-    <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-      <Sphere args={[1, 64, 64]} scale={1.5}>
-        <meshPhysicalMaterial 
-          color="#9370DB" 
-          roughness={0.1} 
-          metalness={0.8} 
-          clearcoat={1} 
-          clearcoatRoughness={0.1}
-          transmission={0.5}
-          thickness={1.5}
-          ior={1.5}
-        />
-      </Sphere>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1.5} color="#d8b4e2" />
-      <Environment preset="city" />
-    </Float>
-  );
-}
 
 export default function HeroSection() {
   return (
     <section id="hero" className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-midnight">
       
-      {/* 3D Background */}
-      <div className="absolute inset-0 z-0 opacity-40 mix-blend-screen pointer-events-none">
-        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-          <FloatingSphere />
-        </Canvas>
+      {/* CSS-only glow replacement for Three.js sphere — same visual, zero GPU */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-30"
+          style={{
+            background: 'radial-gradient(circle, rgba(147,112,219,0.5) 0%, rgba(147,112,219,0.15) 40%, transparent 70%)',
+          }}
+        />
       </div>
 
       <div className="relative z-10 flex flex-col items-center text-center px-4">
@@ -42,7 +21,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-8"
         >
           <span className="w-2 h-2 rounded-full bg-ube animate-pulse"></span>
           <span className="text-white/80 text-xs font-medium tracking-widest uppercase">The Artisan Experience</span>
@@ -81,7 +60,7 @@ export default function HeroSection() {
           </a>
           <a
             href="#sequence"
-            className="w-full sm:w-auto text-center px-8 py-4 bg-white/10 text-white rounded-full font-medium backdrop-blur-md border border-white/10 transition-colors hover:bg-white/20"
+            className="w-full sm:w-auto text-center px-8 py-4 bg-white/10 text-white rounded-full font-medium border border-white/10 transition-colors hover:bg-white/20"
           >
             See the Craft
           </a>

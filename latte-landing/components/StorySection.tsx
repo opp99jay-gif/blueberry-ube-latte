@@ -28,11 +28,6 @@ export default function StorySection() {
 
   return (
     <section id="story" ref={containerRef} className="relative w-full bg-midnight py-40 overflow-hidden">
-      
-      {/* Background typographic subtle details */}
-      <div className="absolute top-0 right-0 p-20 opacity-5 whitespace-nowrap overflow-hidden z-0 select-none hidden lg:block">
-        <h2 className="text-[200px] font-bold text-ube blur-3xl mix-blend-screen">THE STORY</h2>
-      </div>
 
       <div className="max-w-4xl mx-auto px-6 relative z-10 flex flex-col gap-32">
         {storyData.map((item, i) => {

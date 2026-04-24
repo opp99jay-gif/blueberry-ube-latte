@@ -8,6 +8,8 @@ import HealthBenefitsSection from '@/components/HealthBenefitsSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 
+import { createClient } from '@/utils/supabase/server';
+
 const NAV_LINKS = [
     { name: "Story", href: "#story" },
     { name: "Process", href: "#process" },
@@ -15,17 +17,25 @@ const NAV_LINKS = [
     { name: "Health", href: "#health" },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <main className="relative w-full bg-[#050505]">
-      <AppleGlassNav items={NAV_LINKS} />
+      <AppleGlassNav items={NAV_LINKS} user={user} />
       
-      {/* Decorative Blob Elements behind the canvas and sections */}
-      <div className="fixed inset-0 z-0 pointer-events-none flex items-center justify-center">
-        <div className="absolute top-[10%] left-1/4 w-96 h-96 bg-ube rounded-full mix-blend-screen filter blur-[150px] opacity-20 animate-blob"></div>
-        <div className="absolute top-[50%] right-1/4 w-96 h-96 bg-fuchsia-600 rounded-full mix-blend-screen filter blur-[150px] opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[20%] left-1/3 w-96 h-96 bg-blue-600 rounded-full mix-blend-screen filter blur-[150px] opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
+      {/* Static ambient glow — replaces 3 animated GPU-heavy blobs */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background: [
+            'radial-gradient(ellipse 600px 600px at 25% 10%, rgba(147,112,219,0.12) 0%, transparent 70%)',
+            'radial-gradient(ellipse 600px 600px at 75% 50%, rgba(192,38,211,0.10) 0%, transparent 70%)',
+            'radial-gradient(ellipse 600px 600px at 33% 80%, rgba(37,99,235,0.10) 0%, transparent 70%)',
+          ].join(', '),
+        }}
+      />
 
       <div className="relative z-10 w-full flex flex-col">
         {/* 1. Hero Background with 3D elements */}

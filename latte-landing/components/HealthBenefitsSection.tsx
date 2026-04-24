@@ -49,7 +49,7 @@ export default function HealthBenefitsSection() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
               whileHover={{ y: -10, boxShadow: '0 20px 40px -10px rgba(147,112,219,0.15)' }}
-              className="bg-white/5 border border-white/5 p-8 rounded-3xl flex flex-col gap-4 backdrop-blur-md transition-all duration-300"
+              className="bg-white/[0.06] border border-white/5 p-8 rounded-3xl flex flex-col gap-4 transition-all duration-300"
             >
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-ube to-fuchsia-600 mb-2 flex items-center justify-center shadow-lg shadow-ube/20" />
               <h3 className="text-xl text-white font-medium">{benefit.title}</h3>
