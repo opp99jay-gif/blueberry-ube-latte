@@ -1,11 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { login, signup, signInWithGoogle } from './actions'
-
 import { useSearchParams } from 'next/navigation'
 
 export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0515]">
+        <div className="text-white/40 text-sm tracking-widest uppercase">Loading...</div>
+      </div>
+    }>
+      <AuthPageInner />
+    </Suspense>
+  )
+}
+
+function AuthPageInner() {
   const [isLogin, setIsLogin] = useState(true)
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
