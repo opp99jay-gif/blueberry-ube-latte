@@ -29,11 +29,15 @@ export async function signup(formData: FormData) {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
   }
+  const phone = formData.get('phone') as string
 
   const { error } = await supabase.auth.signUp({
     ...data,
     options: {
       emailRedirectTo: 'https://blueberry-ube-latte.vercel.app/auth/confirm',
+      data: {
+        phone: phone || null,
+      }
     },
   })
 

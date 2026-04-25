@@ -111,6 +111,22 @@ function AuthPageInner() {
                   </div>
                 </div>
 
+                {!isLogin && (
+                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <label className="text-sm font-medium text-gray-300 ml-1">Phone Number (For Order Updates)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">📱</span>
+                      <input
+                        name="phone"
+                        type="tel"
+                        placeholder="+1 (555) 000-0000"
+                        required={!isLogin}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 mt-6 shadow-lg shadow-purple-900/20"
