@@ -4,7 +4,17 @@ import { useState, Suspense } from 'react'
 import { login, signup, signInWithGoogle } from './actions'
 import { useSearchParams } from 'next/navigation'
 
-export default function AuthPage() {
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
+
+export default async function AuthPage() {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    redirect('/')
+  }
+
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-[#0a0515]">
