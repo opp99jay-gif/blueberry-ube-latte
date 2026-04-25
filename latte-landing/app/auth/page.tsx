@@ -22,9 +22,11 @@ function AuthPageInner() {
   const error = searchParams.get('error')
   const message = searchParams.get('message')
 
+  const showEmailSent = message && message.includes('Check your email')
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0515] p-4 relative overflow-hidden">
-      {/* Background blobs for aesthetic */}
+      {/* Background blobs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900/20 blur-[120px] rounded-full" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900/20 blur-[120px] rounded-full" />
 
@@ -32,12 +34,14 @@ function AuthPageInner() {
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
+              {showEmailSent ? 'Email Sent!' : isLogin ? 'Welcome Back' : 'Create Account'}
             </h1>
             <p className="text-gray-400">
-              {isLogin 
-                ? 'Sign in to access your luxury latte experience' 
-                : 'Join the blueberry-ube latte revolution'}
+              {showEmailSent
+                ? 'We sent a confirmation link to your inbox'
+                : isLogin 
+                  ? 'Sign in to access your luxury latte experience' 
+                  : 'Join the blueberry-ube latte revolution'}
             </p>
           </div>
 
@@ -48,8 +52,8 @@ function AuthPageInner() {
             </div>
           )}
 
-          {message && message.includes('Check your email') ? (
-            <div className="flex flex-col items-center justify-center text-center p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md mb-6">
+          {showEmailSent ? (
+            <div className="flex flex-col items-center justify-center text-center py-4">
               <div className="relative w-24 h-24 mb-6">
                 <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-xl animate-pulse"></div>
                 <img 
@@ -58,7 +62,7 @@ function AuthPageInner() {
                   className="relative z-10 w-full h-full object-contain drop-shadow-[0_0_15px_rgba(147,112,219,0.5)]" 
                 />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Check Your Inbox</h3>
+              <h3 className="text-xl font-semibold text-white mb-3">Check Your Inbox</h3>
               <p className="text-gray-300 text-sm leading-relaxed mb-6">
                 {message}
               </p>
@@ -69,42 +73,43 @@ function AuthPageInner() {
                 ← Back to Sign In
               </button>
             </div>
-          ) : message ? (
-            <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-3 text-green-400 text-sm">
-              <span>✅</span>
-              <span>{message}</span>
-            </div>
-          ) : null}
+          ) : (
+            <>
+              {message && (
+                <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-3 text-green-400 text-sm">
+                  <span>✅</span>
+                  <span>{message}</span>
+                </div>
+              )}
 
-          {(!message || !message.includes('Check your email')) && (
-            <form action={isLogin ? login : signup} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">📧</span>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="name@example.com"
-                  required
-                  className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
-                />
-              </div>
-            </div>
+              <form action={isLogin ? login : signup} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">📧</span>
+                    <input
+                      name="email"
+                      type="email"
+                      placeholder="name@example.com"
+                      required
+                      className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+                    />
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">🔒</span>
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                  required
-                  className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
-                />
-              </div>
-            </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">🔒</span>
+                    <input
+                      name="password"
+                      type="password"
+                      placeholder="••••••••"
+                      required
+                      className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+                    />
+                  </div>
+                </div>
 
                 <button
                   type="submit"
