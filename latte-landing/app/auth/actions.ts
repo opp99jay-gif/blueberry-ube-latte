@@ -30,14 +30,19 @@ export async function signup(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  const { error } = await supabase.auth.signUp(data)
+  const { error } = await supabase.auth.signUp({
+    ...data,
+    options: {
+      emailRedirectTo: 'https://blueberry-ube-latte.vercel.app/auth/confirm',
+    },
+  })
 
   if (error) {
     redirect('/auth?error=' + encodeURIComponent(error.message))
   }
 
   revalidatePath('/', 'layout')
-  redirect('/auth?message=Check your email to continue the registration process.')
+  redirect('/auth?message=Check your email — click the link to confirm and you will be automatically logged in!')
 }
 
 export async function signInWithGoogle() {
