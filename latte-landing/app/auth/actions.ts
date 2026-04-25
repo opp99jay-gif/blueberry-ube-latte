@@ -42,7 +42,7 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/auth?message=Check your email — click the link to confirm and you will be automatically logged in!')
+  redirect('/auth?message=' + encodeURIComponent('Check your email - click the confirmation link to get started!'))
 }
 
 export async function signInWithGoogle() {
