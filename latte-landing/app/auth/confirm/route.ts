@@ -24,9 +24,12 @@ export async function GET(request: NextRequest) {
       } else {
         return NextResponse.redirect(new URL(next, request.url))
       }
+    } else {
+      // If the token fails (often because Gmail already clicked it in the background),
+      // we assume they are confirmed and just ask them to log in.
+      return NextResponse.redirect(new URL('/auth?message=Email+verified!+Please+sign+in+now.', request.url))
     }
   }
 
-  // If something went wrong, redirect to auth page with error
-  return NextResponse.redirect(new URL('/auth?error=Email+confirmation+failed.+Please+try+again.', request.url))
+  return NextResponse.redirect(new URL('/auth?error=Invalid+confirmation+link.', request.url))
 }

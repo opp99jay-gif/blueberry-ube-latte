@@ -48,14 +48,36 @@ function AuthPageInner() {
             </div>
           )}
 
-          {message && (
+          {message && message.includes('Check your email') ? (
+            <div className="flex flex-col items-center justify-center text-center p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md mb-6">
+              <div className="relative w-24 h-24 mb-6">
+                <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-xl animate-pulse"></div>
+                <img 
+                  src="https://cdn-icons-png.flaticon.com/512/3064/3064197.png" 
+                  alt="Email Sent" 
+                  className="relative z-10 w-full h-full object-contain drop-shadow-[0_0_15px_rgba(147,112,219,0.5)]" 
+                />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">Check Your Inbox</h3>
+              <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                {message}
+              </p>
+              <button
+                onClick={() => window.location.href = '/auth'}
+                className="text-purple-400 hover:text-purple-300 text-sm font-semibold transition-colors"
+              >
+                ← Back to Sign In
+              </button>
+            </div>
+          ) : message ? (
             <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-3 text-green-400 text-sm">
               <span>✅</span>
               <span>{message}</span>
             </div>
-          )}
+          ) : null}
 
-          <form action={isLogin ? login : signup} className="space-y-4">
+          {(!message || !message.includes('Check your email')) && (
+            <form action={isLogin ? login : signup} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
               <div className="relative">
@@ -84,39 +106,41 @@ function AuthPageInner() {
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 mt-6 shadow-lg shadow-purple-900/20"
-            >
-              {isLogin ? 'Sign In' : 'Sign Up'}
-            </button>
-          </form>
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 mt-6 shadow-lg shadow-purple-900/20"
+                >
+                  {isLogin ? 'Sign In' : 'Sign Up'}
+                </button>
+              </form>
 
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#1a1425] px-4 text-gray-500 rounded-full py-1">Or continue with</span>
-            </div>
-          </div>
+              <div className="relative my-8">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10"></div>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-[#1a1425] px-4 text-gray-500 rounded-full py-1">Or continue with</span>
+                </div>
+              </div>
 
-          <button
-            onClick={() => signInWithGoogle()}
-            className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-3"
-          >
-            Google
-          </button>
+              <button
+                onClick={() => signInWithGoogle()}
+                className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-3"
+              >
+                Google
+              </button>
 
-          <p className="mt-8 text-center text-sm text-gray-400">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-purple-400 hover:text-purple-300 font-semibold transition-colors"
-            >
-              {isLogin ? 'Sign up' : 'Sign in'}
-            </button>
-          </p>
+              <p className="mt-8 text-center text-sm text-gray-400">
+                {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+                <button
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-purple-400 hover:text-purple-300 font-semibold transition-colors"
+                >
+                  {isLogin ? 'Sign up' : 'Sign in'}
+                </button>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
