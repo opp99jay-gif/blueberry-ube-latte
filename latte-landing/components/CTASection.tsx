@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import ShopifyBuyButton from './ShopifyBuyButton';
 
 export default function CTASection() {
   return (
@@ -26,13 +27,18 @@ export default function CTASection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
+          className="relative group cursor-pointer"
         >
-          <a
-            href="#"
-            className="px-12 py-6 bg-white text-black text-xl font-medium rounded-full hover:scale-105 transition-transform drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-[0_0_40px_rgba(147,112,219,0.5)] border border-white/50"
-          >
-            Find a Location
-          </a>
+          {/* We add a glowing wrapper to maintain the original aesthetic */}
+          <div className="absolute inset-0 rounded-full bg-white/20 blur-xl group-hover:bg-fuchsia-500/30 transition-colors duration-500"></div>
+          <div className="relative">
+            <ShopifyBuyButton 
+              // IMPORTANT: Replace these placeholders with your actual Shopify details!
+              storeDomain="YOUR_STORE_DOMAIN.myshopify.com" 
+              storefrontAccessToken="YOUR_STOREFRONT_ACCESS_TOKEN"
+              productId="YOUR_PRODUCT_ID"
+            />
+          </div>
         </motion.div>
       </div>
     </section>
