@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useScroll, useSpring, useTransform, motion } from 'framer-motion';
 
-const TOTAL_FRAMES = 120;
+// Reduced from 120 to 40 frames for mobile performance
+const TOTAL_FRAMES_DESKTOP = 120;
+const TOTAL_FRAMES_MOBILE = 40;
 const INITIAL_IMAGE_PATH = (index: number) => `/sequence/latte_frame_${index}.webp`;
 
 interface BeatMapping {
@@ -54,6 +56,20 @@ export default function UbeLatteSequence() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const [loadedCount, setLoadedCount] = useState(0);
   const [isReady, setIsReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const lastFrameRef = useRef(-1);
+
+  // Detect mobile on mount
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const totalFrames = isMobile ? TOTAL_FRAMES_MOBILE : TOTAL_FRAMES_DESKTOP;
 
   // Framer Motion Scroll Hooks
   const { scrollYProgress } = useScroll({
@@ -61,51 +77,52 @@ export default function UbeLatteSequence() {
     offset: ['start start', 'end end'],
   });
 
-  // Smooth the scroll progress to avoid jitter
+  // Lighter spring for mobile
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
+    stiffness: isMobile ? 60 : 100,
+    damping: isMobile ? 20 : 30,
     restDelta: 0.001,
   });
 
-  // 1. Preload Images
+  // 1. Preload Images (skip frames on mobile)
   useEffect(() => {
     let isMounted = true;
-    const loadedImages: HTMLImageElement[] = [];
     let count = 0;
 
-    const preloadNext = (index: number) => {
+    const step = isMobile ? Math.floor(TOTAL_FRAMES_DESKTOP / TOTAL_FRAMES_MOBILE) : 1;
+
+    const preloadNext = (sourceIndex: number, targetIndex: number) => {
       if (!isMounted) return;
-      if (index >= TOTAL_FRAMES) {
+      if (sourceIndex >= TOTAL_FRAMES_DESKTOP || targetIndex >= totalFrames) {
         return;
       }
 
       const img = new Image();
-      img.src = INITIAL_IMAGE_PATH(index);
+      img.src = INITIAL_IMAGE_PATH(sourceIndex);
       img.onload = () => {
         count++;
         if (isMounted) setLoadedCount(count);
-        imagesRef.current[index] = img;
+        imagesRef.current[targetIndex] = img;
         
-        // Release UI lock early after 5 frames
-        if (count === 5 && !isReady && isMounted) {
+        // Release UI lock early after 3 frames
+        if (count >= 3 && !isReady && isMounted) {
           setTimeout(() => {
             if (isMounted) setIsReady(true);
-          }, 300);
+          }, 200);
         }
         
-        preloadNext(index + 1);
+        preloadNext(sourceIndex + step, targetIndex + 1);
       };
       img.onerror = () => {
         count++;
         if (isMounted) setLoadedCount(count);
-        preloadNext(index + 1);
+        preloadNext(sourceIndex + step, targetIndex + 1);
       };
     };
 
-    preloadNext(0);
+    preloadNext(0, 0);
 
-    // Fallback if network is fast enough that 5 frames never took long but we need it ready anyway
+    // Fallback timeout
     setTimeout(() => {
       if (isMounted && !isReady) setIsReady(true);
     }, 2000);
@@ -113,9 +130,9 @@ export default function UbeLatteSequence() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isMobile, totalFrames]);
 
-  // 2. Canvas Drawing Logic
+  // 2. Canvas Drawing Logic - optimized to skip redundant frames
   useEffect(() => {
     if (!isReady) return;
 
@@ -125,12 +142,15 @@ export default function UbeLatteSequence() {
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
-    // Handle high-DPI displays safely
+    // Lower DPR on mobile for performance
+    const getDPR = () => Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.5);
+
     const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const dpr = getDPR();
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
+      lastFrameRef.current = -1; // force redraw after resize
       renderFrame(smoothProgress.get());
     };
 
@@ -138,25 +158,26 @@ export default function UbeLatteSequence() {
       if (!ctx || !canvas) return;
       
       const frameIndex = Math.min(
-        Math.floor(progress * TOTAL_FRAMES),
-        TOTAL_FRAMES - 1
+        Math.floor(progress * totalFrames),
+        totalFrames - 1
       );
+
+      // Skip if same frame - huge GPU savings
+      if (frameIndex === lastFrameRef.current) return;
+      lastFrameRef.current = frameIndex;
       
-      const img = imagesRef.current[frameIndex] || imagesRef.current[ImagesFallbackIndex(frameIndex)];
+      const img = imagesRef.current[frameIndex] || imagesRef.current[findFallback(frameIndex)];
       if (!img) return;
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const cW = canvas.width;
       const cH = canvas.height;
 
-      // Draw purely dark background first #050505
       ctx.fillStyle = '#050505';
       ctx.fillRect(0, 0, cW, cH);
 
-      // Math for 'object-fit: contain'
       const iW = img.width;
       const iH = img.height;
-      if (iW === 0 || iH === 0) return; // avoid math errors if not loaded
+      if (iW === 0 || iH === 0) return;
 
       const ratio = Math.min(cW / iW, cH / iH);
       const scaledW = iW * ratio;
@@ -164,35 +185,31 @@ export default function UbeLatteSequence() {
       const dx = (cW - scaledW) / 2;
       const dy = (cH - scaledH) / 2;
 
-      // Disable image smoothing for sharper look or keep it depending on aesthetic
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'medium';
+      ctx.imageSmoothingEnabled = !isMobile;
+      ctx.imageSmoothingQuality = 'low';
 
       ctx.drawImage(img, dx, dy, scaledW, scaledH);
     };
 
-    // Initial sizing
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    // Subscribe to framer-motion spring updates
-    const unsubscribe = smoothProgress.on("change", (latest) => {
-      requestAnimationFrame(() => renderFrame(latest));
-    });
-
-    // Helper to find closest loaded image if scrolling fast
-    function ImagesFallbackIndex(desiredIndex: number) {
+    function findFallback(desiredIndex: number) {
       for (let i = desiredIndex; i >= 0; i--) {
         if (imagesRef.current[i]) return i;
       }
       return 0;
     }
 
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const unsubscribe = smoothProgress.on("change", (latest) => {
+      requestAnimationFrame(() => renderFrame(latest));
+    });
+
     return () => {
       unsubscribe();
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, [isReady, smoothProgress]);
+  }, [isReady, smoothProgress, isMobile, totalFrames]);
 
   // Transform values for "Scroll to Taste" Indicator
   const scrollIndicatorOpacity = useTransform(smoothProgress, [0, 0.1], [1, 0]);
@@ -216,7 +233,7 @@ export default function UbeLatteSequence() {
                 <motion.div 
                   className="absolute inset-y-0 left-0 bg-ube shadow-[0_0_15px_rgba(147,112,219,0.8)]"
                   initial={{ width: '0%' }}
-                  animate={{ width: `${(loadedCount / TOTAL_FRAMES) * 100}%` }}
+                  animate={{ width: `${(loadedCount / totalFrames) * 100}%` }}
                   transition={{ ease: "easeOut", duration: 0.1 }}
                 />
               </div>
@@ -253,12 +270,12 @@ export default function UbeLatteSequence() {
   );
 }
 
-// Separate component for text beat using direct useTransform mappings
+// Separate component for text beat
 function BeatText({ beat, progress }: { beat: BeatMapping, progress: any }) {
   const { start, end, title, subtitle, align, isCta } = beat;
   
   const span = end - start;
-  const fadeInEnd = start + span * 0.1; // 10% of their range
+  const fadeInEnd = start + span * 0.1;
   const fadeOutStart = end - span * 0.1;
 
   const opacity = useTransform(
