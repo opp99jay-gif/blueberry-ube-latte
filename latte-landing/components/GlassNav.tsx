@@ -48,12 +48,31 @@ export function AppleGlassNav({
             </Link>
           ))}
           {user ? (
-            <button 
-              onClick={() => logout()}
-              className="text-white/70 hover:text-white text-sm font-medium tracking-wide transition-colors"
-            >
-              Sign Out
-            </button>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                {user.user_metadata?.avatar_url ? (
+                  <img 
+                    src={user.user_metadata.avatar_url} 
+                    alt="User Avatar" 
+                    className="w-6 h-6 rounded-full border border-white/20"
+                  />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-purple-500/50 flex items-center justify-center text-xs font-bold text-white border border-white/20">
+                    {user.email?.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span className="text-white/90 text-sm font-medium mr-2">
+                  {user.user_metadata?.full_name?.split(' ')[0] || 'User'}
+                </span>
+              </div>
+              <button 
+                onClick={() => logout()}
+                className="text-red-400/80 hover:text-red-400 text-sm font-medium tracking-wide transition-colors"
+                title="Sign Out"
+              >
+                Sign Out
+              </button>
+            </div>
           ) : (
             <Link
               href="/auth"
