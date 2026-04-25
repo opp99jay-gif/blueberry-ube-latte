@@ -43,12 +43,7 @@ export async function signup(formData: FormData) {
 export async function signInWithGoogle() {
   const supabase = createClient()
   const getURL = () => {
-    let url =
-      process.env.NEXT_PUBLIC_SITE_URL ??
-      process.env.NEXT_PUBLIC_VERCEL_URL ??
-      'http://localhost:3000'
-    url = url.includes('http') ? url : `https://${url}`
-    return `${url}/auth/callback`
+    return 'https://blueberry-ube-latte.vercel.app/auth/callback'
   }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
